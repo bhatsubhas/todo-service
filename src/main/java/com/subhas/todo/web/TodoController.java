@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,21 +28,26 @@ public class TodoController {
 
     @GetMapping("/todos")
     ResponseEntity<List<Todo>> getAllTodos(@RequestParam Map<String, String> queryParams) {
-	String completedQueryParam = queryParams.get("completed");
-	Optional<Boolean> isCompleted = Optional.empty();
-	if (Objects.nonNull(completedQueryParam)) {
-	    isCompleted = Optional.ofNullable(Boolean.parseBoolean(completedQueryParam));
-	}
-	return new ResponseEntity<>(todoService.listTodos(isCompleted), HttpStatus.OK);
+        String completedQueryParam = queryParams.get("completed");
+        Optional<Boolean> isCompleted = Optional.empty();
+        if (Objects.nonNull(completedQueryParam)) {
+            isCompleted = Optional.ofNullable(Boolean.parseBoolean(completedQueryParam));
+        }
+        return new ResponseEntity<>(todoService.listTodos(isCompleted), HttpStatus.OK);
     }
 
     @GetMapping("/todos/{id}")
     ResponseEntity<Todo> getTodo(@PathVariable(required = true, value = "id") long id) {
-	return new ResponseEntity<>(todoService.retrieveTodo(id), HttpStatus.OK);
+        return new ResponseEntity<>(todoService.retrieveTodo(id), HttpStatus.OK);
     }
 
     @PostMapping("/todos")
     ResponseEntity<Todo> create(@RequestBody Todo todo) {
-	return new ResponseEntity<>(todoService.createTodo(todo), HttpStatus.CREATED);
+        return new ResponseEntity<>(todoService.createTodo(todo), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/todos/{id}")
+    void delete(@PathVariable(name = "id") Long id) {
+        todoService.deleteTodo(id);
     }
 }

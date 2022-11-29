@@ -112,4 +112,27 @@ class TodoServiceTest {
 		assertEquals(mockedList.size(), retrievedList.size());
 		verify(todoRepository).findByIsCompleted(false);
 	}
+
+	@Test
+	@DisplayName("Delete an existing Todo")
+	void testSuccessfullyDeleteTodo() {
+		long id = 12L;
+		when(todoRepository.existsById(id)).thenReturn(true);
+
+		todoService.deleteTodo(id);
+
+		verify(todoRepository).existsById(id);
+		verify(todoRepository).deleteById(id);
+	}
+
+	@Test
+	@DisplayName("While deleting throw exception when Todo does not exists")
+	void testExceptionWhenTodoDoesNotExists() {
+		long id = 12L;
+		when(todoRepository.existsById(id)).thenReturn(false);
+
+		assertThrows(TodoNotFoundException.class, () -> todoService.deleteTodo(id));
+
+		verify(todoRepository).existsById(id);
+	}
 }

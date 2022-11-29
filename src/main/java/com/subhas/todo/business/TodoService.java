@@ -12,30 +12,38 @@ import com.subhas.todo.data.entity.Todo;
 
 @Service
 public class TodoService {
-    @Autowired
-    private TodoRepository todoRepository;
+	@Autowired
+	private TodoRepository todoRepository;
 
-    public TodoService(TodoRepository todoRepository) {
-	this.todoRepository = todoRepository;
-    }
-
-    public List<Todo> listTodos(Optional<Boolean> isCompleted) {
-	if (isCompleted.isPresent()) {
-	    return todoRepository.findByIsCompleted(isCompleted.get());
+	public TodoService(TodoRepository todoRepository) {
+		this.todoRepository = todoRepository;
 	}
-	return todoRepository.findAll();
-    }
 
-    public Todo createTodo(Todo todo) {
-	return todoRepository.save(todo);
-    }
-
-    public Todo retrieveTodo(long id) {
-	Optional<Todo> todoOptional = todoRepository.findById(id);
-	if (todoOptional.isEmpty()) {
-	    throw new TodoNotFoundException(id);
+	public List<Todo> listTodos(Optional<Boolean> isCompleted) {
+		if (isCompleted.isPresent()) {
+			return todoRepository.findByIsCompleted(isCompleted.get());
+		}
+		return todoRepository.findAll();
 	}
-	return todoOptional.get();
-    }
+
+	public Todo createTodo(Todo todo) {
+		return todoRepository.save(todo);
+	}
+
+	public Todo retrieveTodo(long id) {
+		Optional<Todo> todoOptional = todoRepository.findById(id);
+		if (todoOptional.isEmpty()) {
+			throw new TodoNotFoundException(id);
+		}
+		return todoOptional.get();
+	}
+
+	public void deleteTodo(long id) {
+		boolean exists = todoRepository.existsById(id);
+		if (!exists) {
+			throw new TodoNotFoundException(id);
+		}
+		todoRepository.deleteById(id);
+	}
 
 }

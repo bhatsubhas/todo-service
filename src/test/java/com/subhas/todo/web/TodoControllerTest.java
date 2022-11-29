@@ -2,8 +2,10 @@ package com.subhas.todo.web;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -113,4 +115,21 @@ class TodoControllerTest {
 		.andExpect(jsonPath("$.errorMessage").value("Could not find Todo with id 2")).andDo(print());
 	verify(todoService).retrieveTodo(2);
     }
+
+	@Test
+	@DisplayName("Successfully delete a Todo")
+	void deleteTodo() throws Exception {
+		mockMvc.perform(delete("/api/todos/2")).andExpect(status().isOk()).andDo(print());
+		verify(todoService).deleteTodo(2);
+	}
+
+	@Test
+	@DisplayName("Return not found, Todo to be deleted is not found")
+	void deleteTodo_failure() throws Exception {
+		doThrow(new TodoNotFoundException(2L)).when(todoService).deleteTodo(2L);
+		mockMvc.perform(delete("/api/todos/2").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+				.andExpect(jsonPath("$.errorMessage").value("Could not find Todo with id 2")).andDo(print());
+		verify(todoService).deleteTodo(2L);
+	}
 }
